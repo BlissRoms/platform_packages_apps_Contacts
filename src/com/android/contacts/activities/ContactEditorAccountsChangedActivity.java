@@ -171,11 +171,35 @@ public class ContactEditorAccountsChangedActivity extends Activity
                 }
             });
         } else {
-            view = null; // Only to make the compiler happy
-            // If the user has 0 writable accounts, don't bother, let them continue editing
-            // the contact as a phone-only local contact.
-            saveAccountAndReturnResult(AccountWithDataSet.getNullAccount());
-            finish();
+            // If the user has 0 writable accounts, we will just show the user a message with 2
+            // possible action buttons.
+            view = View.inflate(this,
+                    R.layout.contact_editor_accounts_changed_activity_with_text, null);
+
+            final TextView textView = (TextView) view.findViewById(R.id.text);
+            final Button leftButton = (Button) view.findViewById(R.id.left_button);
+            final Button rightButton = (Button) view.findViewById(R.id.right_button);
+
+            textView.setText(getString(R.string.contact_editor_prompt_zero_accounts));
+
+            // This button allows the user to continue editing the contact as a phone-only
+            // local contact.
+            leftButton.setText(getString(android.R.string.cancel));
+            leftButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Remember that the user wants to create local contacts, so the user is not
+                    // prompted again with this activity.
+                    saveAccountAndReturnResult(AccountWithDataSet.getLocalAccount(
+                            ContactEditorAccountsChangedActivity.this));
+                    finish();
+                }
+            });
+
+            // This button allows the user to add a new account to the device and return to
+            // this app afterwards.
+            rightButton.setText(getString(R.string.add_account));
+            rightButton.setOnClickListener(mAddAccountClickListener);
         }
 
         if (mDialog != null && mDialog.isShowing()) {
